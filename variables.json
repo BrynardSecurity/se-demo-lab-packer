@@ -1,0 +1,12 @@
+{
+  "vsphere-server": "vcenter.thebrynards.com",
+    "vsphere-user": "automation@vsphere.local",
+    "vsphere-password": "*X9P;mg0ddMS",
+    "vsphere-datacenter": "tx-dal-dc01",
+    "vsphere-cluster": "dal-prod-01",
+    "vsphere-network": "dpg-vc01-id10",
+    "vsphere-datastore": "VMStore",
+    "vsphere-folder": "packer_templates",
+    "insecure-connection": "true",
+    "vm-notes": "Packer template. Build time:{{isotime}}"
+}

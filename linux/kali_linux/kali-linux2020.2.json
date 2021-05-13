@@ -1,0 +1,86 @@
+{
+  "_comment": "Template file provides a framework for subsequent packer build files",
+  "builders": [
+    {
+      "CPUs": 2,
+      "RAM": 2048,
+      "RAM_reserve_all": true,
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US.UTF-8 <wait>",
+        "auto <wait>",
+        "locale=en_US.UTF-8 <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/xkb-keymap=us <wait>",
+        "netcfg/get_hostname={{ .Name }} <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "<enter><wait>"
+      ],
+      "boot_order": "disk,cdrom",
+      "boot_wait": "10s",
+      "cdrom_type": "sata",
+      "cluster": "{{user `vsphere-cluster`}}",
+      "communicator": "ssh",
+      "convert_to_template": "true",
+      "datacenter": "{{user `vsphere-datacenter`}}",
+      "datastore": "{{user `vsphere-datastore`}}",
+      "disk_controller_type": "pvscsi",
+      "firmware": "efi",
+      "folder": "{{user `vsphere-folder`}}",
+      "guest_os_type": "debian10_64Guest",
+      "http_directory": "http",
+      "http_port_max": 8610,
+      "http_port_min": 8601,
+      "insecure_connection": "{{user `insecure-connection`}}",
+      "iso_checksum": "sha256:ae9a3b6a1e016cd464ca31ef5055506cecfc55a10f61bf1acb8313eddbe12ad7",
+      "iso_urls": [
+        "{{user `os-iso-path`}}"
+      ],
+      "network_adapters": [
+        {
+          "network": "{{user `vsphere-network`}}",
+          "network_card": "vmxnet3"
+        }
+      ],
+      "notes": "{{user `vm-notes`}}",
+      "password": "{{user `vsphere-password`}}",
+      "shutdown_command": "sudo shutdown -P now",
+      "ssh_password": "packer",
+      "ssh_timeout": "10000s",
+      "ssh_username": "packer",
+      "storage": [
+        {
+          "disk_size": 20480,
+          "disk_thin_provisioned": true
+        }
+      ],
+      "type": "vsphere-iso",
+      "username": "{{user `vsphere-user`}}",
+      "vcenter_server": "{{user `vsphere-server`}}",
+      "vm_name": "kali_linux"
+    }
+  ],
+  "description": "Packer centos linux build template file",
+  "provisioners": [
+    {
+      "execute_command": "sudo -S sh '{{.Path}}'",
+      "expect_disconnect": true,
+      "scripts": [
+        "scripts/base.sh",
+        "scripts/vm.sh",
+        "scripts/user.sh"
+      ],
+      "type": "shell"
+    }
+  ],
+  "variables": {
+    "os-iso-path": "http://cdimage.kali.org/kali-2020.2/kali-linux-2020.2-installer-amd64.iso"
+  }
+}
+

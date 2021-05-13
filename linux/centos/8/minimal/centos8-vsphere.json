@@ -1,0 +1,94 @@
+{
+	"description": "Packer centos linux build template file",
+	"_comment": "Template file provides a framework for subsequent packer build files",
+	"variables": {
+		"os-iso-path": "[nfsdatastore01] os/centos/8/centos8-stream.iso"
+	},
+
+	"builders": [
+		{
+			"type": "vsphere-iso",
+
+			"vcenter_server": "{{user `vsphere-server`}}",
+			"username": "{{user `vsphere-user`}}",
+			"password": "{{user `vsphere-password`}}",
+			"datacenter": "{{user `vsphere-datacenter`}}",
+			"cluster": "{{user `vsphere-cluster`}}",
+			"datastore": "{{user `vsphere-datastore`}}",
+			"folder": "{{user `vsphere-folder`}}",
+			"insecure_connection": "{{user `insecure-connection`}}",
+
+			"convert_to_template": "true",
+
+			"vm_name": "centOS8.min.gold",
+			"guest_os_type": "centos8_64Guest",
+
+			"CPUs": 2,
+			"RAM": 2048,
+			"RAM_reserve_all": true,
+			"firmware": "efi",
+			"cdrom_type": "sata",
+
+			"storage": [
+				{
+					"disk_size": 16384,
+					"disk_thin_provisioned": true
+				}
+			],
+			"disk_controller_type": "pvscsi",
+
+			"network_adapters": [
+				{
+					"network": "{{user `vsphere-network`}}",
+					"network_card": "vmxnet3"
+				}
+			],
+
+			"notes": "{{user `vm-notes`}}",
+
+			"iso_paths": [
+				"{{user `os-iso-path`}}"
+			],
+
+			"communicator": "ssh",
+			"ssh_username": "packer",
+			"ssh_password": "packer",
+
+			"http_directory": "http",
+			"http_ip": "10.0.10.197",
+			"http_port_min": 8601,
+			"http_port_max":8610,
+
+			"boot_order": "disk,cdrom",
+      		"boot_wait": "10s",
+			"boot_command": [
+				"e<down><down><end><bs><bs><bs><bs><bs>text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<leftCtrlOn>x<leftCtrlOff>"
+			]
+
+		}
+	],
+	"provisioners": [
+    {
+	  "type": "shell",
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "inline": [
+        "dnf -y update",
+        "dnf -y install python3",
+        "alternatives --set python /usr/bin/python3",
+        "python -m pip install --upgrade pip",
+        "pip3 install ansible"
+      ]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "scripts/setup.yml"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+        "scripts/cleanup.sh"
+      ]
+    }
+  ]
+}
