@@ -1,39 +1,43 @@
 # Second-phase configuration of vanilla Windows Server installation to progress Packer.io builds
 # @author Ralph Brynard
-$ErrorActionPreference = "Inquire"
 
 cd $env:TEMP
 
+function Write-ProgressHelper {
+    param(
+        [int]$StepNumber,
+        [string]$Message
+    )
+
+    Write-Progress -Activity 'Title' -Status $Message -PercentComplete (($StepNumber / $steps) * 100)
+}
+
+$script:steps = ([System.Management.Automation.PsParser]::Token((gc "$PSScriptRoot\$(MyInvocation.MyCommand.Name)"), [ref]$null) | Where-Object { $_.Type -eq 'Command' -and $_.Content -eq 'Write-ProgressHelper' }).count
+
+$stepCounter = 0
+
+Write-ProgressHelper -Message 'Downloading Sophos Installer...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
 
 #Set TLS Version
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
 
 $url="https://dzr-api-amzn-us-west-2-fa88.api-upe.p.hmr.sophos.com/api/download/a24f232171f6e3dd9d913518503c1de4/SophosSetup.exe"
 $installer = "SophosSetup.exe"
-curl $url -OutFile $installer 
-& Start-Process $env:TEMP\"SophosSetup.exe" -ArgumentList "--customertoken=9a02d9a7-02b9-446b-873a-ad752e668a6d --epinstallerserver=dzr-api-amzn-us-west-2-fa88.api-upe.p.hmr.sophos.com --products=all --quiet" -Wait
+curl $url -OutFile $installer
+
+Write-ProgressHelper -Message 'Running Sophos Installer...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
+
+Start-Process $env:TEMP\"SophosSetup.exe" -ArgumentList "--customertoken=9a02d9a7-02b9-446b-873a-ad752e668a6d --epinstallerserver=dzr-api-amzn-us-west-2-fa88.api-upe.p.hmr.sophos.com --products=all --quiet" -Wait
+
+Write-ProgressHelper -Message 'Preparing Golden Image Script file...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
 
 Get-Content A:\SophosGoldImagePrep.bat > C:\SophosGoldImagePrep.bat
 
-function getString() {
-    param (
-        [parameter(mandatory=$true)][string]$firstString =$(throw "Parameter missing: -firstString 'string1' "),
-        [parameter(mandatory=$false)][string]$secondString =$(throw "Parameter missing: -secondString 'string2' "),
-        [parameter(mandatory=$true)][string]$importPath =$(throw "Parameter missing: -importPath '\path\to\import\file' ")
-    )
-    
-    #Get content from file
-    $file = Get-Content $importPath
-
-    #Regex pattern to compare two strings
-    $pattern = "$firstString(.*?)$secondString"
-
-    #Perform the operation
-    $result = [regex]::Match($file,$pattern).Groups[1].Value
-
-    #Return result
-    return $result
-}
+Write-ProgressHelper -Message 'Getting endpoint registration token...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
 
 $registrationToken = getString -firstString "<registrationToken>" -secondString "</registrationToken>" -importPath "C:\ProgramData\Sophos\Management Communications System\Endpoint\Config\Config.xml"
 
@@ -85,8 +89,14 @@ function findInTextFile {
     }
 }
 
+Write-ProgressHelper -Message 'Modifying Golden Image Preparation Script...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
+
 findInTextFile -FilePath 'C:\SophosGoldImagePrep.bat' -Find 'GOLD_IMAGE_HOSTNAME' -Replace '$(hostname)'
 findInTextFile -File 'C:\SophosGoldImagePrep.bat' -find 'REGISTRATION_TOKEN' -Replace $registrationToken
+
+Write-ProgressHelper -Message 'Creating Scheduled Task...' -StepNumber ($stepCounter++)
+Start-Sleep -Seconds 5
 
 function schTaskGoldImagePrep (){
     $class = cimclass MSFT_TASKEventTrigger root/Microsoft/Windows/TaskScheduler
@@ -117,3 +127,5 @@ function schTaskGoldImagePrep (){
 }
 
 schTaskGoldImagePrep
+
+Write-Host -ForegroundColor Green "Installation of Intercept X Advanced is complete!"

@@ -1,9 +1,13 @@
-$url = "https://api-cloudstation-us-east-2.prod.hydra.sophos.com/api/download/9287a9b85973f795f5c7e6b7fd0f4e32/SophosSetup.exe"
+cd $env:temp
+
+$url = "https://dzr-api-amzn-us-west-2-fa88.api-upe.p.hmr.sophos.com/api/download/a24f232171f6e3dd9d913518503c1de4/SophosSetup.exe"
 $output = "$env:temp\SophosSetup.exe"
 
 function downloadFile($url, $targetFile)
 
 {
+   #Set TLS Version
+   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
 
    $uri = New-Object "System.Uri" "$url"
    $request = [System.Net.HttpWebRequest]::Create($uri)
@@ -36,5 +40,3 @@ function downloadFile($url, $targetFile)
 }
 
 downloadFile $url $output
-
-$output --quiet --devicegroup=vagrantboxes

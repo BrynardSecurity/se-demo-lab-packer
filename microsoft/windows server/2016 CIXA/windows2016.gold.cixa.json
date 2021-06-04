@@ -25,7 +25,7 @@
 
 			"convert_to_template": "true",	
 
-			"vm_name": "windows2016.gold.cixa",
+			"vm_name": "windows2016.cixa.gold",
 			"guest_os_type": "windows9Server64Guest",
 			
 			"CPUs": 2,
@@ -65,7 +65,7 @@
 				"../scripts/2016/00-vmtools.ps1",
 				"../scripts/2016/01-initialize.ps1",
 				"../scripts/2016/03-systemsettings.ps1",
-				"../scripts/2016/05-installcixa.ps1",
+				"../scripts/2016/05-install-cixa.ps1",
 				"../scripts/2016/SophosGoldImagePrep.bat",
 				"../scripts/2016/95-enablerdp.ps1"
 			],
@@ -78,7 +78,7 @@
 			"type": "powershell",
 			"scripts": [
 				"../scripts/2016/03-systemsettings.ps1",
-				"../scripts/2016/05-installcixa.ps1",
+				"../scripts/2016/05-install-cixa.ps1",
 				"../scripts/2016/95-enablerdp.ps1"
 			]
 		},

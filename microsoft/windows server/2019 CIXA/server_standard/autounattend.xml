@@ -107,7 +107,7 @@
                 <RunSynchronousCommand wcm:action="add">
                     <Description>Install VMWare Tools</Description>
                     <Order>1</Order>
-                    <Path>cmd.exe /c a:\00-vmtools64.cmd</Path>
+                    <Path>powershell.exe /c a:\00-vmtools.ps1</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Description>Turn off network discovery prompt</Description>

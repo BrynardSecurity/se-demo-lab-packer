@@ -8,9 +8,18 @@ autoinstall:
     layout: en
     variant: us
   identity:
-    hostname: ubuntu20
+    hostname: ubuntu
     username: packer
     password: '$1$hp/fJmBE$X2m9Zb0Zzt7vndnDQfvJv.'
+  users:
+    - default
+    - name: docker
+      gecos: docker
+      primary_group: staff
+      sudo: ALL=(ALL) NOPASSWD:ALL
+      groups: users, admin
+      ssh_import_id:
+      lock_passwd: false
   ssh:
     install-server: yes
     allow-pw: yes

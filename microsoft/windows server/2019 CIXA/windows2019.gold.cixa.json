@@ -25,7 +25,7 @@
 
 			"convert_to_template": "true",	
 
-			"vm_name": "windows2019.gold",
+			"vm_name": "windows2019.cixa.gold",
 			"guest_os_type": "windows9Server64Guest",
 			
 			"CPUs": 2,
@@ -58,9 +58,11 @@
 
 			"floppy_files": [
 				"server_standard/autounattend.xml",
-				"../scripts/2019/00-vmtools64.cmd",
+				"../scripts/2019/00-vmtools.ps1",
 				"../scripts/2019/01-initialize.ps1",
 				"../scripts/2019/03-systemsettings.ps1",
+				"../scripts/2019/05-testing-installcixa.ps1",
+				"../scripts/2019/SophosGoldImagePrep.bat",
 				"../scripts/2019/95-enablerdp.ps1"
 			],
 
@@ -72,6 +74,7 @@
 			"type": "powershell",
 			"scripts": [
 				"../scripts/2019/03-systemsettings.ps1",
+				"../scripts/2019/05-install-cixa.ps1",
 				"../scripts/2019/95-enablerdp.ps1"
 			]
 		},
